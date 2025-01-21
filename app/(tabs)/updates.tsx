@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ScrollView, Linking } from 'react-native';
+import { View, Text, Image, ScrollView, Linking, TouchableOpacity } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Rect } from 'react-native-svg';
 import { Button } from '@/components/ui/button';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // To store data persistently
@@ -8,6 +8,7 @@ const data = [
   {
     title: 'PRESALE',
     description: 'LAUNCHING SOON!',
+    link: 'https://tinyurl.com/chmlPresale', // Add the link to your data
   },
 ];
 
@@ -16,8 +17,9 @@ const Updates = () => {
   const [isTimerOver, setIsTimerOver] = useState(false);
 
   // Set the target date (e.g., 5 days from now or a specific date)
-  const targetDate = Date.UTC(2025, 0, 22, 16, 0, 10); // January 22, 2025, 9:30 PM UTC// January 22, 2025, 9:30 PM
-  // const targetDate = new Date('2025-01-21T11:00:09').getTime(); // January 22, 2025, 9:30 PM
+  const targetDate = Date.UTC(2025, 0, 22, 16, 0, 10); // January 22, 2025, 9:30 PM UTC
+  
+  
 
   // Effect hook to set the time when the user first opens the app
   useEffect(() => {
@@ -28,11 +30,11 @@ const Updates = () => {
         await AsyncStorage.setItem('startDate', new Date().toString());
       }
     };
-    
+
     setStartTime();
 
     const updateTimeLeft = () => {
-      const currentTime =  new Date(new Date().toISOString()).getTime() // Current time in milliseconds
+      const currentTime = new Date().getTime(); // Current time in milliseconds
       const timeRemaining = targetDate - currentTime; // Time difference in milliseconds
 
       if (timeRemaining <= 0) {
@@ -62,7 +64,12 @@ const Updates = () => {
     <View className="flex-1 bg-[#0C0E12]">
       <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: 20 }}>
         {data.map((item, index) => (
-          <View key={index} className="bg-[#0C0E12] mb-6 p-4 w-full">
+          <TouchableOpacity
+            key={index}
+            className="bg-[#0C0E12] mb-6 p-4 w-full"
+            onPress={() => Linking.openURL(item.link)} // Open the link when tapped
+            activeOpacity={0.9} // Adjust touch opacity for better UX
+          >
             {/* SVG Background with Gradient */}
             <Svg height="150" width="100%">
               <Defs>
@@ -85,13 +92,12 @@ const Updates = () => {
             </Svg>
 
             {/* Card Content (Left side: Text, Description, Timer, or Button) */}
-            <View className="absolute flex-row w-full h-full items-center justify-between px-6 gap-3 mt-4 ">
+            <View className="absolute flex-row w-full h-full items-center justify-between px-6 gap-3 mt-4">
               {!isTimerOver ? (
                 // Show the timer while countdown is active
-                <View className="flex-1 pl-4 gap-2 ">
-                  <Text className="text-black text-4xl font-bold font-{'Poppins'}">{item.title}</Text>
-                  <Text className="text-black text-xl font-poppins">{item.description}</Text>
-                  {/* <Text className="text-black text-2xl font-bold mt-2">{formatTime()}</Text> */}
+                <View className="flex-1 pl-4 gap-2">
+                  <Text className="text-black text-4xl font-bold">{item.title}</Text>
+                  <Text className="text-black text-xl">{item.description}</Text>
                   <View className="flex-row gap-1 font-bold text-2xl items-center align-middle">
                     <Text className="text-black text-3xl font-bold">{formatTime().days}</Text>
                     <Text className="text-black text-3xl font-bold">:</Text>
@@ -105,14 +111,15 @@ const Updates = () => {
               ) : (
                 // Show the "Buy Now" button and update description when the timer is over
                 <View className="flex-1 pl-4 gap-2">
-                  <Text className="text-black text-4xl font-bold font-poppins">{item.title}</Text>
-                  <Text className="text-black text-xl font-poppins">IS LIVE!</Text>
+                  <Text className="text-black text-4xl font-bold">{item.title}</Text>
+                  <Text className="text-black text-xl">IS LIVE!</Text>
                   <Button
                     className="mt-4 w-32 h-8 bg-none bg-transparent border-2 border-black rounded-full data-[active=true]:bg-transparent"
                     onPress={() => Linking.openURL('https://tinyurl.com/chmlPresale')}
                   >
-                    <Text className="color-black font-bold">Buy Now</Text>
+                    <Text className="color-black font-bold ">Buy CHML</Text>
                   </Button>
+
                 </View>
               )}
 
@@ -122,7 +129,7 @@ const Updates = () => {
                 className="w-32 h-32 rounded-full"
               />
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
